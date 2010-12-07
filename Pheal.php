@@ -28,7 +28,7 @@
 /**
  * Pheal (PHp Eve Api Library), a EAAL Port for PHP
  */
-class Pheal
+class Pheal_Pheal
 {
     /**
      * Version container
@@ -94,47 +94,47 @@ class Pheal
      */
     private function request_xml($scope, $name, $opts)
     {
-        $opts = array_merge(PhealConfig::getInstance()->additional_request_parameters, $opts);
-        if(!$this->xml = PhealConfig::getInstance()->cache->load($this->userid,$this->key,$scope,$name,$opts))
+        $opts = array_merge(Pheal_Config::getInstance()->additional_request_parameters, $opts);
+        if(!$this->xml = Pheal_Config::getInstance()->cache->load($this->userid,$this->key,$scope,$name,$opts))
         {
-            $url = PhealConfig::getInstance()->api_base . $scope . '/' . $name . ".xml.aspx";
+            $url = Pheal_Config::getInstance()->api_base . $scope . '/' . $name . ".xml.aspx";
             if($this->userid) $opts['userid'] = $this->userid;
             if($this->key) $opts['apikey'] = $this->key;
             
             try {
                 // start measure the response time
-                PhealConfig::getInstance()->log->start();
+                Pheal_Config::getInstance()->log->start();
 
                 // request
-                if(PhealConfig::getInstance()->http_method == "curl" && function_exists('curl_init'))
+                if(Pheal_Config::getInstance()->http_method == "curl" && function_exists('curl_init'))
                     $this->xml = self::request_http_curl($url,$opts);
                 else
                     $this->xml = self::request_http_file($url,$opts);
 
                 // stop measure the response time
-                PhealConfig::getInstance()->log->stop();
+                Pheal_Config::getInstance()->log->stop();
 
                 // parse
                 $element = new SimpleXMLElement($this->xml);
 
             } catch(Exception $e) {
                 // log + throw error
-                PhealConfig::getInstance()->log->errorLog($scope,$name,$opts,$e->getCode() . ': ' . $e->getMessage());
-                throw new PhealException('API Date could not be read / parsed, orginial exception: ' . $e->getMessage());
+                Pheal_Config::getInstance()->log->errorLog($scope,$name,$opts,$e->getCode() . ': ' . $e->getMessage());
+                throw new Pheal_Exception('API Date could not be read / parsed, orginial exception: ' . $e->getMessage());
             }
-            PhealConfig::getInstance()->cache->save($this->userid,$this->key,$scope,$name,$opts,$this->xml);
+            Pheal_Config::getInstance()->cache->save($this->userid,$this->key,$scope,$name,$opts,$this->xml);
             
             // archive+save only non-error api calls + logging
             if(!$element->error) {
-                PhealConfig::getInstance()->log->log($scope,$name,$opts);
-                PhealConfig::getInstance()->archive->save($this->userid,$this->key,$scope,$name,$opts,$this->xml);
+                Pheal_Config::getInstance()->log->log($scope,$name,$opts);
+                Pheal_Config::getInstance()->archive->save($this->userid,$this->key,$scope,$name,$opts,$this->xml);
             } else {
-                PhealConfig::getInstance()->log->errorLog($scope,$name,$opts,$element->error['code'] . ': ' . $element->error);
+                Pheal_Config::getInstance()->log->errorLog($scope,$name,$opts,$element->error['code'] . ': ' . $element->error);
             }
         } else {
             $element = new SimpleXMLElement($this->xml);
         }
-        return new PhealResult($element);
+        return new Pheal_Result($element);
     }
 
     /**
@@ -151,15 +151,15 @@ class Pheal
         $curl = curl_init();
 
         // custom user agent
-        if(($http_user_agent = PhealConfig::getInstance()->http_user_agent) != false)
+        if(($http_user_agent = Pheal_Config::getInstance()->http_user_agent) != false)
             curl_setopt($curl, CURLOPT_USERAGENT, $http_user_agent);
         
         // custom outgoing ip address
-        if(($http_interface_ip = PhealConfig::getInstance()->http_interface_ip) != false)
+        if(($http_interface_ip = Pheal_Config::getInstance()->http_interface_ip) != false)
             curl_setopt($curl, CURLOPT_INTERFACE, $http_interface_ip);
             
         // use post for params
-        if(count($opts) && PhealConfig::getInstance()->http_post)
+        if(count($opts) && Pheal_Config::getInstance()->http_post)
         {
             curl_setopt($curl, CURLOPT_POST, true);
             curl_setopt($curl, CURLOPT_POSTFIELDS, $opts);
@@ -170,7 +170,7 @@ class Pheal
             $url .= "?" . http_build_query($opts);
         }
         
-        if(($http_timeout = PhealConfig::getInstance()->http_timeout) != false)
+        if(($http_timeout = Pheal_Config::getInstance()->http_timeout) != false)
             curl_setopt($curl, CURLOPT_TIMEOUT, $http_timeout);
         
         // curl defaults
@@ -205,15 +205,15 @@ class Pheal
         $options = array();
         
         // set custom user agent
-        if(($http_user_agent = PhealConfig::getInstance()->http_user_agent) != false)
+        if(($http_user_agent = Pheal_Config::getInstance()->http_user_agent) != false)
             $options['http']['user_agent'] = $http_user_agent;
         
         // set custom http timeout
-        if(($http_timeout = PhealConfig::getInstance()->http_timeout) != false)
+        if(($http_timeout = Pheal_Config::getInstance()->http_timeout) != false)
             $options['http']['timeout'] = $http_timeout;
         
         // use post for params
-        if(count($opts) && PhealConfig::getInstance()->http_post)
+        if(count($opts) && Pheal_Config::getInstance()->http_post)
         {
             $options['http']['method'] = 'POST';
             $options['http']['content'] = http_build_query($opts);

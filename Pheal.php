@@ -33,7 +33,7 @@ class Pheal_Pheal
     /**
      * Version container
      */
-    public static $version = "0.0.10";
+    public static $version = "0.0.11";
 
     /**
      * @var int
@@ -253,23 +253,6 @@ class Pheal_Pheal
             ini_set('track_errors',$oldTrackErrors);
             return $result;
         }
-    }
-    
-    /**
-     * static method to use with spl_autoload_register
-     * for usage include Pheal.php and then spl_autoload_register("Pheal::classload");
-     * @param String $name
-     * @return boolean
-     */
-    public static function classload($name)
-    {
-        $dir = pathinfo(__FILE__, PATHINFO_DIRNAME) ."/";
-        if(substr($name, 0, 5) == "Pheal" && file_exists($dir . $name .".php"))
-        {
-            require_once($dir . $name . ".php");
-            return true;
-        }
-        return false;
     }
 }
 

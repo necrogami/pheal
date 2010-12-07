@@ -148,45 +148,47 @@ class Pheal_Pheal
     public static function request_http_curl($url,$opts)
     {
         // init curl
-        $curl = curl_init();
-
+        $adapter = new Zend_Http_Client_Adapter_Curl();
+		$client = new Zend_Http_Client();
+		$client->setAdapter($adapter);
+		$config = array();
         // custom user agent
         if(($http_user_agent = Pheal_Config::getInstance()->http_user_agent) != false)
-            curl_setopt($curl, CURLOPT_USERAGENT, $http_user_agent);
+            $config['useragent'] = $http_user_agent;
         
         // custom outgoing ip address
-        if(($http_interface_ip = Pheal_Config::getInstance()->http_interface_ip) != false)
-            curl_setopt($curl, CURLOPT_INTERFACE, $http_interface_ip);
-            
+        //if(($http_interface_ip = Pheal_Config::getInstance()->http_interface_ip) != false)
+        //    curl_setopt($curl, CURLOPT_INTERFACE, $http_interface_ip);
+        //    
         // use post for params
         if(count($opts) && Pheal_Config::getInstance()->http_post)
         {
-            curl_setopt($curl, CURLOPT_POST, true);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, $opts);
+            $client->setParameterPost($opts);
         }
         // else build url parameters
         elseif(count($opts))
         {
-            $url .= "?" . http_build_query($opts);
+            $client->setParameterGet($opts);
         }
         
         if(($http_timeout = Pheal_Config::getInstance()->http_timeout) != false)
-            curl_setopt($curl, CURLOPT_TIMEOUT, $http_timeout);
+            $config['timeout'] = $http_timeout;
         
-        // curl defaults
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_ENCODING, "");
-
-
+        $client->setUri($url);
+        $client->setConfig($config);
+        if(Pheal_Config::getInstance()->http_post)
+        {
+            $response = $client->request(Zend_Http_Client::POST);
+        } else {
+            $response = $client->request(Zend_Http_Client::GET);
+        }
         
         // call
-        $result	= curl_exec($curl);
-        $errno = curl_errno($curl);
-        $error = curl_error($curl);
-        curl_close($curl);
+        $result	= $response->getBody();
+        $errno = $response->getStatus();
+        $error = $response->getMessage();
 
-        if($errno)
+        if($response->isError())
             throw new Exception($error, $errno);
         else
             return $result;

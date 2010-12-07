@@ -58,7 +58,7 @@ class Pheal_Row_Set extends ArrayObject
                 $element= PhealElement::parse_element($child);
                 $row[(String) $element->_name] = $element;
             }
-            $rowObject = new PhealRowSetRow($row);
+            $rowObject = new Pheal_Row_Set_Row($row);
             $rowObject->setStringValue((string) $rowxml);
             $this->append($rowObject);
         }

@@ -4,6 +4,7 @@ Copyright (C) 2010 by Peter Petermann
 All rights reserved.
 
 Pheal is a port of EAAL to PHP
+
 This is a modification of Peterman's version that is autoloaded with Zend_Loader_Autoloader
 
 ## WARNING
@@ -90,7 +91,7 @@ which is the EVE APIs error code, and also contains the EVE API message as messa
 ### Archiving
 If you wanna archive your api requests for future use, backups or possible feature 
 additions you can add an archive handler that saves your api responses in a similar
-way like the cache handler is doing it. Only non-error API responses are beeing cached.
+way like the cache handler is doing it. Only non-error API responses are being cached.
 The files are grouped by date and include the gmt timestamp.
 
 Make sure that you've a cron job running that moves old archive folders into zip/tar/7z 
